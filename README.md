@@ -13,7 +13,7 @@ TruthGuard AI is a state-of-the-art integrity verification portal designed for d
     *   **Live circular scanning progress indicator** and a **detailed investigation timeline checklist** that guides users through extraction phases in real time.
     *   **Real print-to-PDF Cryptographic Certificates**: Automatically opens print-optimized layouts so investigators can save formal cryptographic authenticity reports.
 *   **🤖 AI Claim Fact-Checking (`/fact-check`)**:
-    *   Powered by Google's **Gemma-2-9B-IT** instructions model via Hugging Face.
+    *   Powered by Google's local **Gemma-4-12B-IT** model with serverless cloud fallback (**Gemma-2-9B-IT**) via Hugging Face.
     *   Evaluates claims and returns structured, human-readable verdicts, confidence ratings, and official publisher sources (e.g., PIB Fact Check Desk, RBI Press Releases).
 *   **📊 Calibration & Explainability Studio (`/dashboard/explainability`)**:
     *   Configurable Sensitivity and Noise-Reduction sliders.
@@ -30,10 +30,17 @@ TruthGuard AI is a state-of-the-art integrity verification portal designed for d
 
 *   **Frontend**: Next.js 16 (React), TypeScript, Tailwind CSS, Lucide icons, Firebase Client SDK (Auth, Firestore).
 *   **Backend**: FastAPI, Uvicorn, Hugging Face `InferenceClient`, Requests, PyTorch, Wav2Vec2.
-*   **AI Integration**:
-    *   *Image classification*: `prithivMLmods/Deep-Fake-Detector-v2-Model` (accessed via InferenceClient with `Content-Type: image/jpeg` header bindings).
-    *   *Text Fact-checking*: `google/gemma-2-9b-it`.
-    *   *Audio Voice-clone detection*: Local `Wav2Vec2` classifier with server fallback.
+*   **AI Integration & Core Models**:
+    *   📷 **Image Deepfake Detections**: `prithivMLmods/Deep-Fake-Detector-v2-Model`
+        *   Used for frame-by-skin and texture-level anomaly scans, accessed via HF Inference API/Client using specific stream-headers.
+    *   🎙️ **Audio Voice-Clone Detections**: `garystafford/wav2vec2-deepfake-voice-detector`
+        *   A fine-tuned Wav2Vec2 audio classification model loaded locally using PyTorch and Hugging Face Transformers, evaluating spectral anomalies and vocal signatures.
+    *   🎥 **Video Deepfake Detection & Analysis**: `Naman712/Deep-fake-detection`
+        *   Model benchmarks utilized for detecting synthetic manipulations, temporal anomalies, and compression markers.
+    *   ✍️ **Primary AI Claim Fact-Checking (Local)**: `google/gemma-4-12B-it`
+        *   Loaded locally using `AutoModelForMultimodalLM` and `AutoProcessor` under PyTorch with automatic GPU/CPU device mapping for high-speed local inference.
+    *   ⚡ **Fallback AI Claim Fact-Checking (Serverless)**: `google/gemma-2-9b-it`
+        *   Serverless fallback instruction model accessed via Hugging Face InferenceClient for high-availability cloud redundancy.
 *   **Database & Hosting**: Google Firebase (Firestore Database, Firebase Auth, Firebase Hosting).
 
 ---
