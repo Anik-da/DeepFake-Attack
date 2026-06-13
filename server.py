@@ -75,7 +75,8 @@ async def verify_media(
             try:
                 from huggingface_hub import InferenceClient
                 client = InferenceClient(
-                    token=hf_token if hf_token else None
+                    token=hf_token if hf_token else None,
+                    headers={"Content-Type": "image/jpeg"}
                 )
                 predictions = client.image_classification(
                     file_bytes,
@@ -85,7 +86,7 @@ async def verify_media(
                 print(f"HF InferenceClient image classification failed: {e}. Trying raw requests fallback...")
                 try:
                     API_URL = "https://api-inference.huggingface.co/models/prithivMLmods/Deep-Fake-Detector-v2-Model"
-                    headers = {}
+                    headers = {"Content-Type": "image/jpeg"}
                     if hf_token:
                         headers["Authorization"] = f"Bearer {hf_token}"
                     response = requests.post(API_URL, headers=headers, data=file_bytes)
