@@ -5,7 +5,7 @@ TruthGuard AI is a state-of-the-art integrity verification portal built with a F
 ## Features
 
 - **🛡️ Forensic Media Sandbox (`/verify`)**: High-capacity upload workflow (up to 1GB files) supporting image, video, and audio deepfake analysis.
-- **🤖 Gemma 2 9B Fact-Checker (`/fact-check`)**: Natural language claim check engine powered by Google's Gemma 2 9B model via Hugging Face Inference APIs, providing verdicts, confidence levels, and credibility attributions.
+- **🤖 Gemma 4 Fact-Checker (`/fact-check`)**: Natural language claim check engine powered by Google's Gemma 4 model via Hugging Face Inference APIs, providing verdicts, confidence levels, and credibility attributions.
 - **📊 Calibration & Explainability Studio (`/dashboard/explainability`)**: Interactive threshold configuration dashboard allowing real-time adjustments of sensitivity and noise-reduction coefficients, paired with an animated SVG/Canvas raw signal wave analyzer.
 - **🚨 Viral Threat Alert Center**: Active misinformation threat tracking in the dashboard showing platform spread rate, shares volume, and automated audit redirects.
 - **☁️ Firebase Firestore & Hosting Integration**: Fully persistent analysis database matching real-time user verification logs.
