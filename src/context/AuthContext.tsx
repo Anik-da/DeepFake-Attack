@@ -24,6 +24,7 @@ import {
 
 interface AuthContextType {
   user: User | null;
+  loading: boolean;
   history: VerificationHistoryItem[];
   login: (email: string, password: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<boolean>;
@@ -38,6 +39,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const [history, setHistory] = useState<VerificationHistoryItem[]>([]);
 
   const fetchUserHistory = async (uid: string) => {
@@ -65,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         const customUser: User = {
           id: fbUser.uid,
@@ -79,7 +81,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         setUser(customUser);
         localStorage.setItem('tg_user', JSON.stringify(customUser));
-        fetchUserHistory(fbUser.uid);
+        await fetchUserHistory(fbUser.uid);
       } else {
         setUser(null);
         localStorage.removeItem('tg_user');
@@ -92,6 +94,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.setItem('tg_history_guest', JSON.stringify(mockHistory));
         }
       }
+      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -223,6 +226,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   return (
     <AuthContext.Provider value={{
       user,
+      loading,
       history,
       login,
       loginWithGoogle,

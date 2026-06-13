@@ -318,23 +318,72 @@ function VerifyContent() {
 
           {/* Scanning Animation */}
           {isScanning && (
-            <div className="rounded-2xl border border-border bg-surface p-8 sm:p-10 text-center flex flex-col items-center justify-center min-h-[380px] shadow-sm">
-              <div className="relative w-20 h-20 mb-6">
-                {/* Circular pulsing ring */}
-                <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
-                <div className="absolute inset-2 rounded-full border-2 border-primary/40" />
-                <div className="absolute inset-0 flex items-center justify-center text-primary">
-                  <RefreshCw className="w-7 h-7 animate-spin" />
+            <div className="rounded-2xl border border-border bg-surface p-6 sm:p-8 shadow-sm space-y-8 animate-scale-in">
+              <div className="flex flex-col md:flex-row gap-8 items-center md:items-start">
+                
+                {/* Circular scanner progress */}
+                <div className="w-full md:w-1/3 flex flex-col items-center justify-center text-center p-4 border border-border bg-surface-2/40 rounded-xl">
+                  <div className="relative w-20 h-20 mb-4">
+                    <div className="absolute inset-0 rounded-full border-2 border-primary/20 animate-ping" />
+                    <div className="absolute inset-2 rounded-full border-2 border-primary/40 animate-pulse" />
+                    <div className="absolute inset-0 flex items-center justify-center text-primary">
+                      <RefreshCw className="w-7 h-7 animate-spin" />
+                    </div>
+                  </div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-text-secondary">AI Diagnostic Sweep</h4>
+                  <div className="w-full bg-surface rounded-full h-2 overflow-hidden border border-border/60 mt-3.5">
+                    <div className="h-full bg-primary transition-all duration-300" style={{ width: `${scanProgress}%` }} />
+                  </div>
+                  <span className="text-xs font-mono font-extrabold text-primary mt-1.5">{Math.round(scanProgress)}% Completed</span>
                 </div>
+
+                {/* Timeline Checklist */}
+                <div className="flex-1 w-full space-y-4">
+                  <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">Investigation Timeline</span>
+                  <div className="space-y-3 relative pl-4 border-l border-border/80 ml-2">
+                    {[
+                      { limit: 15, label: 'Decompressing container data...' },
+                      { limit: 35, label: 'Analyzing metadata EXIF headers...' },
+                      { limit: 55, label: 'Extracting focal regions & facial landmarks...' },
+                      { limit: 75, label: 'Running adversarial synthetic classifiers...' },
+                      { limit: 90, label: 'Synthesizing voice spectrogram patterns...' },
+                      { limit: 100, label: 'Generating authenticity certificate...' }
+                    ].map((step, idx, arr) => {
+                      const prevLimit = idx === 0 ? 0 : arr[idx - 1].limit;
+                      const isDone = scanProgress >= step.limit;
+                      const isCurrent = scanProgress >= prevLimit && scanProgress < step.limit;
+                      
+                      return (
+                        <div key={idx} className={`flex items-center justify-between transition-all duration-300 ${
+                          isDone || isCurrent ? 'opacity-100' : 'opacity-35'
+                        }`}>
+                          <div className="flex items-center space-x-3">
+                            <div className={`w-5 h-5 rounded-full flex items-center justify-center border text-[10px] ${
+                              isDone 
+                                ? 'bg-success border-success text-white' 
+                                : isCurrent 
+                                  ? 'border-primary bg-primary/10 text-primary animate-pulse' 
+                                  : 'border-border bg-surface-2 text-text-tertiary'
+                            }`}>
+                              {isDone ? '✓' : idx + 1}
+                            </div>
+                            <span className={`text-xs ${isCurrent ? 'font-bold text-primary' : 'text-text-primary'}`}>
+                              {step.label}
+                            </span>
+                          </div>
+                          {isCurrent && (
+                            <span className="text-[9px] font-bold text-primary animate-pulse tracking-wide uppercase">ACTIVE</span>
+                          )}
+                          {isDone && (
+                            <span className="text-[9px] font-bold text-success font-mono">OK</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
               </div>
-              <h3 className="font-display font-bold text-lg text-text-primary">AI Models Scanning File</h3>
-              <p className="text-xs text-text-secondary mt-1">{scanStep}</p>
-              
-              {/* Progress */}
-              <div className="w-full max-w-sm bg-surface-2 rounded-full h-2.5 overflow-hidden border border-border mt-6">
-                <div className="h-full bg-primary" style={{ width: `${scanProgress}%` }} />
-              </div>
-              <span className="text-xs font-bold text-primary font-mono mt-2">{Math.round(scanProgress)}%</span>
             </div>
           )}
 

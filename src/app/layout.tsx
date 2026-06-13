@@ -5,6 +5,7 @@ import { ThemeProvider } from '../context/ThemeProvider';
 import { AuthProvider } from '../context/AuthContext';
 import { Navbar } from '../components/layout/Navbar';
 import { Footer } from '../components/layout/Footer';
+import { RouteGuard } from '../components/auth/RouteGuard';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -44,7 +45,9 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <Navbar />
-            <main className="flex-grow pt-[78px]">{children}</main>
+            <RouteGuard>
+              <main className="flex-grow pt-[78px]">{children}</main>
+            </RouteGuard>
             <Footer />
           </AuthProvider>
         </ThemeProvider>

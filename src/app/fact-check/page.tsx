@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, ShieldCheck, ShieldAlert, CheckCircle, HelpCircle, Star, ExternalLink, ArrowRight, Sparkles } from 'lucide-react';
 import { mockFactChecks } from '../../lib/mockData';
 import { FactCheckResult } from '../../types';
-import { collection, query, orderBy, limit, getDocs, addDoc } from 'firebase/firestore';
+import { collection, query, orderBy, limit, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
 
 export default function FactCheckPage() {
@@ -39,6 +39,25 @@ export default function FactCheckPage() {
     };
     fetchRecentChecks();
   }, []);
+
+  const clearHistory = async () => {
+    if (!confirm('Are you sure you want to delete all fact-checking history?')) return;
+    try {
+      const q = query(collection(db, 'factchecks'));
+      const querySnapshot = await getDocs(q);
+      const deletePromises = querySnapshot.docs.map(document => 
+        deleteDoc(doc(db, 'factchecks', document.id))
+      );
+      await Promise.all(deletePromises);
+      setRecentChecks([]);
+      setResults([]);
+      setSearched(false);
+      alert('Fact-checking history cleared successfully!');
+    } catch (err) {
+      console.error('Error clearing history: ', err);
+      alert('Failed to clear history. Please try again.');
+    }
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -357,7 +376,18 @@ export default function FactCheckPage() {
         {/* Right Column: Preloaded Checks History */}
         <div className="lg:col-span-4 space-y-6">
           <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-sm">
-            <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-4">Recent Verifications</h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Recent Verifications</h3>
+              {recentChecks.length > 0 && (
+                <button
+                  onClick={clearHistory}
+                  className="text-[10px] font-bold text-danger hover:underline"
+                  title="Clear history from database"
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
             
             {/* Category tabs */}
             <div className="flex border-b border-border pb-2.5 mb-4 space-x-2 overflow-x-auto">
