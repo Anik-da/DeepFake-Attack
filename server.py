@@ -6,6 +6,26 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 
+def load_env_local():
+    # Attempt to load HF_TOKEN from .env.local if present
+    try:
+        env_path = os.path.join(os.path.dirname(__file__), ".env.local")
+        if os.path.exists(env_path):
+            with open(env_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith("#") and "=" in line:
+                        parts = line.split("=", 1)
+                        key = parts[0].strip()
+                        val = parts[1].strip().strip("'\"")
+                        if key == "HF_TOKEN" and val:
+                            os.environ["HF_TOKEN"] = val
+                            print("Loaded HF_TOKEN from .env.local")
+    except Exception as e:
+        print(f"Failed to read .env.local: {e}")
+
+load_env_local()
+
 app = FastAPI(title="TruthGuard AI Inference Server")
 
 # Enable CORS for Next.js frontend calls
@@ -193,8 +213,8 @@ async def factcheck_claim(data: dict):
         
     hf_token = os.environ.get("HF_TOKEN", "")
     try:
-        # Query Llama model using Hugging Face InferenceClient
-        API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
+        # Query Gemma 2 model using Hugging Face Inference API
+        API_URL = "https://api-inference.huggingface.co/models/google/gemma-2-9b-it"
         headers = {}
         if hf_token:
             headers["Authorization"] = f"Bearer {hf_token}"
@@ -208,11 +228,19 @@ async def factcheck_claim(data: dict):
             "and 'sources' (a list containing 1 or 2 sources, each source with keys 'publisher', 'title', 'credibilityRating' (integer), and 'url')."
         )
         
+        # Gemma 2 chat template formatting
+        prompt = (
+            f"<start_of_turn>user\n"
+            f"{system_prompt}\n\n"
+            f"Claim to evaluate: {claim}<end_of_turn>\n"
+            f"<start_of_turn>model\n"
+        )
+        
         payload = {
-            "inputs": f"<|system|>\n{system_prompt}\n<|user|>\nClaim: {claim}\n<|assistant|>\n",
+            "inputs": prompt,
             "parameters": {
-                "max_new_tokens": 300,
-                "temperature": 0.2,
+                "max_new_tokens": 450,
+                "temperature": 0.1,
                 "return_full_text": False
             }
         }

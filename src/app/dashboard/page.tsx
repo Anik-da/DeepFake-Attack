@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ShieldCheck, ShieldAlert, BarChart3, Users, ChevronRight, FileImage, FileVideo, FileAudio, FileText, CheckCircle, AlertTriangle } from 'lucide-react';
-import { mockDashboardStats } from '../../lib/mockData';
+import { ShieldCheck, ShieldAlert, BarChart3, Users, ChevronRight, FileImage, FileVideo, FileAudio, FileText, CheckCircle, AlertTriangle, TrendingUp, Tv, Video, Mic, Image as ImageIcon } from 'lucide-react';
+import { mockDashboardStats, viralAlerts } from '../../lib/mockData';
 import { useAuth } from '../../context/AuthContext';
 import Link from 'next/link';
 
@@ -75,6 +75,12 @@ export default function DashboardPage() {
           <p className="text-xs sm:text-sm text-text-secondary mt-1">Real-time indicators, detection volumes, and digital media verification integrity metrics.</p>
         </div>
         <div className="flex space-x-2">
+          <Link
+            href="/dashboard/explainability"
+            className="px-4 py-2.5 text-xs font-bold text-text-primary border border-border bg-surface hover:bg-surface-2 rounded-xl transition-all"
+          >
+            Calibration Studio
+          </Link>
           <Link
             href="/verify"
             className="px-4 py-2.5 text-xs font-bold text-white bg-primary hover:bg-primary-dark rounded-xl shadow-sm transition-all"
@@ -281,6 +287,85 @@ export default function DashboardPage() {
           </div>
         </div>
 
+      </div>
+
+      {/* Viral Threat Alert Center */}
+      <div className="rounded-2xl border border-border bg-surface p-5 sm:p-6 shadow-sm mt-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 border-b border-border pb-4">
+          <div>
+            <span className="text-[10px] font-bold text-primary uppercase tracking-wider block">Real-Time Threat Vector</span>
+            <h3 className="text-base font-bold text-text-primary mt-1">Viral Threat Alert Center</h3>
+          </div>
+          <div className="flex items-center gap-2 text-xs bg-danger/5 text-danger px-3 py-1.5 rounded-xl border border-danger/10">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-danger opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-danger"></span>
+            </span>
+            <span>Active Misinformation Campaigns: <strong>{viralAlerts.length}</strong></span>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {viralAlerts.map((alert) => (
+            <div 
+              key={alert.id}
+              className="flex flex-col md:flex-row items-start md:items-center justify-between p-5 bg-surface-2 border border-border rounded-xl transition-all duration-200 hover:border-primary/20 gap-4"
+            >
+              <div className="flex gap-4 items-start flex-grow">
+                {/* Media Icon Badge */}
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                  alert.severity === 'critical' 
+                    ? 'bg-danger/10 text-danger border border-danger/20' 
+                    : 'bg-warning/10 text-warning border border-warning/20'
+                }`}>
+                  {alert.mediaType === 'video' ? <Video className="w-5 h-5" /> : alert.mediaType === 'audio' ? <Mic className="w-5 h-5" /> : <ImageIcon className="w-5 h-5" />}
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-bold text-text-primary">{alert.title}</span>
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wide ${
+                      alert.severity === 'critical'
+                        ? 'text-danger bg-danger/10 border-danger/20'
+                        : 'text-warning bg-warning/10 border-warning/20'
+                    }`}>
+                      {alert.severity}
+                    </span>
+                    <span className="text-[10px] text-text-tertiary font-bold uppercase tracking-wider bg-surface/80 px-2 py-0.5 rounded border border-border/40">{alert.platform}</span>
+                    <span className="text-[10px] text-text-tertiary">• Detected {alert.detectedAt}</span>
+                  </div>
+                  <p className="text-xs text-text-secondary leading-relaxed max-w-4xl">
+                    {alert.description}
+                  </p>
+                </div>
+              </div>
+
+              {/* Stats & Actions */}
+              <div className="flex items-center gap-6 self-end md:self-auto w-full md:w-auto justify-between md:justify-start border-t border-border/20 md:border-t-0 pt-3 md:pt-0">
+                <div className="text-right">
+                  <div className="text-[9px] text-text-tertiary font-bold uppercase">Spread Volume</div>
+                  <div className="text-xs font-bold text-text-primary flex items-center gap-1 mt-0.5 justify-end">
+                    <TrendingUp className="w-3.5 h-3.5 text-danger" /> {alert.shares}
+                  </div>
+                </div>
+
+                <div className="text-right">
+                  <div className="text-[9px] text-text-tertiary font-bold uppercase">AI Confidence</div>
+                  <div className="text-xs font-mono font-extrabold text-danger mt-0.5">
+                    {alert.trustScore}% Trust
+                  </div>
+                </div>
+
+                <Link 
+                  href={`/verify?demo=true`}
+                  className="px-3 py-1.5 text-xs font-bold text-text-primary border border-border bg-surface hover:bg-surface-2 rounded-xl transition-all inline-flex items-center gap-1.5"
+                >
+                  Forensic Report <ChevronRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
     </div>

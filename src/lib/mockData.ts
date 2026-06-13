@@ -397,3 +397,71 @@ export const mockCommunityReports: CommunityReport[] = [
     timestamp: '6 hours ago'
   }
 ];
+
+export const viralAlerts = [
+  {
+    id: 'VA-001',
+    title: 'Election Speech Deepfake Video',
+    description: 'A synthetic video of a political candidate making inflammatory statements is rapidly spreading across social media platforms.',
+    severity: 'critical' as const,
+    platform: 'Twitter/X',
+    shares: '2.4M',
+    detectedAt: '2 hours ago',
+    mediaType: 'video',
+    trustScore: 14,
+  },
+  {
+    id: 'VA-002',
+    title: 'Celebrity Crypto Endorsement Clip',
+    description: 'AI-generated video of a major celebrity endorsing a cryptocurrency scheme. Voice analysis indicates cloning.',
+    severity: 'high' as const,
+    platform: 'YouTube',
+    shares: '890K',
+    detectedAt: '5 hours ago',
+    mediaType: 'video',
+    trustScore: 22,
+  },
+  {
+    id: 'VA-003',
+    title: 'Fake Emergency Broadcast Audio',
+    description: 'Synthetic audio mimicking an official emergency broadcast system warning of a fabricated natural disaster.',
+    severity: 'critical' as const,
+    platform: 'WhatsApp',
+    shares: '1.1M',
+    detectedAt: '8 hours ago',
+    mediaType: 'audio',
+    trustScore: 8,
+  },
+  {
+    id: 'VA-004',
+    title: 'Manipulated Satellite Imagery',
+    description: 'Altered satellite photos claiming to show military movements near a disputed border region.',
+    severity: 'high' as const,
+    platform: 'Telegram',
+    shares: '340K',
+    detectedAt: '12 hours ago',
+    mediaType: 'image',
+    trustScore: 29,
+  },
+  {
+    id: 'VA-005',
+    title: 'Cloned CEO Voice Phishing Call',
+    description: 'AI-cloned voice of a Fortune 500 CEO used in a sophisticated social engineering attack targeting employees.',
+    severity: 'medium' as const,
+    platform: 'Phone/VoIP',
+    shares: 'N/A',
+    detectedAt: '1 day ago',
+    mediaType: 'audio',
+    trustScore: 18,
+  },
+];
+
+export const modelMetrics = {
+  faceSwap: { probability: 92, label: 'Face Swap Detection', description: 'Analyzes facial geometry, skin texture consistency, and boundary artifacts around face regions.' },
+  voiceClone: { probability: 88, label: 'Voice Clone Detection', description: 'Evaluates spectral patterns, pitch consistency, and voice print matching against known signatures.' },
+  frameConsistency: { probability: 34, label: 'Frame Consistency', description: 'Measures temporal coherence between consecutive frames, detecting generation artifacts and blending anomalies.' },
+  metadataIntegrity: { probability: 21, label: 'Metadata Integrity', description: 'Validates EXIF data, codec information, and file headers against expected patterns for genuine media.' },
+  lipSync: { probability: 85, label: 'Lip-Sync Analysis', description: 'Correlates mouth movements with audio phonemes using temporal alignment scoring.' },
+  eyeBlink: { probability: 67, label: 'Eye Blink Pattern', description: 'Detects unnatural blink rates and patterns that deviate from physiological norms.' },
+};
+
