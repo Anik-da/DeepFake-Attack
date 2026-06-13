@@ -1,66 +1,91 @@
-# TruthGuard AI — Enterprise Deepfake Detection & Fact-Checking Platform
+# 🛡️ TruthGuard AI — Enterprise Deepfake Detection & Fact-Checking Platform
 
-TruthGuard AI is a state-of-the-art integrity verification portal built with a FastAPI backend and a Next.js (React) frontend, providing real-time forensic diagnostics for images, videos, audio samples, and claim fact-checking.
+### 🌐 Live Production Application: **[https://deepfake-attack.web.app](https://deepfake-attack.web.app)**
 
-## Features
-
-- **🛡️ Forensic Media Sandbox (`/verify`)**: High-capacity upload workflow (up to 1GB files) supporting image, video, and audio deepfake analysis.
-- **🤖 Gemma 4 Fact-Checker (`/fact-check`)**: Natural language claim check engine powered by Google's Gemma 4 model via Hugging Face Inference APIs, providing verdicts, confidence levels, and credibility attributions.
-- **📊 Calibration & Explainability Studio (`/dashboard/explainability`)**: Interactive threshold configuration dashboard allowing real-time adjustments of sensitivity and noise-reduction coefficients, paired with an animated SVG/Canvas raw signal wave analyzer.
-- **🚨 Viral Threat Alert Center**: Active misinformation threat tracking in the dashboard showing platform spread rate, shares volume, and automated audit redirects.
-- **☁️ Firebase Firestore & Hosting Integration**: Fully persistent analysis database matching real-time user verification logs.
+TruthGuard AI is a state-of-the-art integrity verification portal designed for digital forensics investigators and intelligence analysts. Built on a resilient **FastAPI** backend and a highly polished, responsive **Next.js** (React) frontend, it offers real-time analysis tools to identify deepfakes and cross-examine online misinformation.
 
 ---
 
-## Getting Started
+## 🎯 Key Capabilities
 
-### 1. Requirements & System Dependencies
-Make sure you have Python 3.10+ and Node.js 18+ installed on your system.
+*   **🛡️ Multi-Modal Forensic Sandbox (`/verify`)**:
+    *   Upload images, audio recordings, or videos for deep neural scan.
+    *   **Live circular scanning progress indicator** and a **detailed investigation timeline checklist** that guides users through extraction phases in real time.
+    *   **Real print-to-PDF Cryptographic Certificates**: Automatically opens print-optimized layouts so investigators can save formal cryptographic authenticity reports.
+*   **🤖 AI Claim Fact-Checking (`/fact-check`)**:
+    *   Powered by Google's **Gemma-2-9B-IT** instructions model via Hugging Face.
+    *   Evaluates claims and returns structured, human-readable verdicts, confidence ratings, and official publisher sources (e.g., PIB Fact Check Desk, RBI Press Releases).
+*   **📊 Calibration & Explainability Studio (`/dashboard/explainability`)**:
+    *   Configurable Sensitivity and Noise-Reduction sliders.
+    *   Real-time estimated KPIs (True/False Positive Rates, scanner throughput).
+    *   Interactive Canvas-based raw signal wave visualizer.
+*   **🔒 Auth-Gated Secure Routing**:
+    *   Custom client-side **`RouteGuard`** prevents unauthenticated users from accessing restricted sections.
+    *   Persistent Firebase user sessions allow users to log in once and stay logged in.
+    *   **Partitioned User Histories**: Verification history and fact-checking searches are stored securely under user-specific collections (`users/{userId}/factchecks` and `users/{userId}/history`), guaranteeing privacy.
 
-### 2. Backend Installation (FastAPI)
+---
+
+## ⚙️ Architecture & Technical Stack
+
+*   **Frontend**: Next.js 16 (React), TypeScript, Tailwind CSS, Lucide icons, Firebase Client SDK (Auth, Firestore).
+*   **Backend**: FastAPI, Uvicorn, Hugging Face `InferenceClient`, Requests, PyTorch, Wav2Vec2.
+*   **AI Integration**:
+    *   *Image classification*: `prithivMLmods/Deep-Fake-Detector-v2-Model` (accessed via InferenceClient with `Content-Type: image/jpeg` header bindings).
+    *   *Text Fact-checking*: `google/gemma-2-9b-it`.
+    *   *Audio Voice-clone detection*: Local `Wav2Vec2` classifier with server fallback.
+*   **Database & Hosting**: Google Firebase (Firestore Database, Firebase Auth, Firebase Hosting).
+
+---
+
+## 🚀 Getting Started
+
+### 1. Backend Setup (FastAPI)
 1. Install Python requirements:
    ```bash
    pip install -r requirements.txt
    ```
-2. Set your Hugging Face API Token in system environment variables or in `.env.local` in the project root:
+2. Create a `.env.local` file in the project directory:
    ```env
-   HF_TOKEN=your_huggingface_access_token_here
+   HF_TOKEN=your_huggingface_access_token
    ```
 3. Run the FastAPI server:
    ```bash
    python server.py
    ```
-   The backend server will run at `http://127.0.0.1:8000`.
+   The backend will run at `http://127.0.0.1:8000`.
 
-### 3. Frontend Installation (Next.js)
-1. Install node packages:
+### 2. Frontend Setup (Next.js)
+1. Install dependencies:
    ```bash
    npm install
    ```
-2. Build the static distribution:
+2. Build the production bundle:
    ```bash
    npm run build
    ```
-3. Start local development server:
+3. Start the dev server:
    ```bash
    npm run dev
    ```
-   Open `http://localhost:3000` to preview.
+   Open `http://localhost:3000` to preview locally.
 
 ---
 
-## Deployment
+## ☁️ Deployment
 
-The static Next.js frontend has been configured to build and deploy to Firebase Hosting:
+The frontend compiles to static export pages and is hosted directly on Firebase Hosting:
 ```bash
-# Deploy to Firebase hosting
-npx firebase deploy --only hosting --project deepfake-attack
+# Build the application
+npm run build
+
+# Deploy to Firebase Hosting
+firebase deploy --only hosting
 ```
-Live URL: **[https://deepfake-attack.web.app](https://deepfake-attack.web.app)**
 
 ---
 
-## Security & Secrets Protection
-This project is configured to keep all credentials secure:
-* All Firebase and Hugging Face API keys are read dynamically from local environment variables.
-* The `.gitignore` file strictly blocks all `.env` files, `.env.local`, Python virtual environments (`venv`), and build caches from being committed to version control.
+## 🛡️ Security & Environment Protections
+*   All API keys and credentials are kept strictly out of git history.
+*   `.env.local` is listed in the `.gitignore` to prevent leaking keys.
+*   Route verification and account database is protected by Firebase Firestore rules.
