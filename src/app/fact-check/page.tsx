@@ -6,8 +6,10 @@ import { mockFactChecks } from '../../lib/mockData';
 import { FactCheckResult } from '../../types';
 import { collection, query, orderBy, limit, getDocs, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../../lib/firebase';
+import { useAuth } from '../../context/AuthContext';
 
 export default function FactCheckPage() {
+  const { user } = useAuth();
   const [claimQuery, setClaimQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
@@ -18,8 +20,12 @@ export default function FactCheckPage() {
   // Load recent checks from Firestore on mount
   useEffect(() => {
     const fetchRecentChecks = async () => {
+      if (!user) {
+        setRecentChecks(mockFactChecks);
+        return;
+      }
       try {
-        const q = query(collection(db, 'factchecks'), orderBy('timestamp', 'desc'), limit(15));
+        const q = query(collection(db, 'users', user.id, 'factchecks'), orderBy('timestamp', 'desc'), limit(15));
         const querySnapshot = await getDocs(q);
         const checks: FactCheckResult[] = [];
         querySnapshot.forEach((doc) => {
@@ -29,24 +35,30 @@ export default function FactCheckPage() {
         if (checks.length > 0) {
           setRecentChecks(checks);
         } else {
-          // Prepopulate state with mock data if database collection is empty
-          setRecentChecks(mockFactChecks);
+          // Seed the user's specific collection with mock fact checks if empty
+          const seedPromises = mockFactChecks.map(async (item) => {
+            const seedRef = await addDoc(collection(db, 'users', user.id, 'factchecks'), item);
+            return { ...item, id: seedRef.id } as FactCheckResult;
+          });
+          const seeded = await Promise.all(seedPromises);
+          setRecentChecks(seeded);
         }
       } catch (err) {
-        console.error('Error fetching fact checks from Firestore: ', err);
+        console.error('Error fetching user fact checks from Firestore: ', err);
         setRecentChecks(mockFactChecks);
       }
     };
     fetchRecentChecks();
-  }, []);
+  }, [user]);
 
   const clearHistory = async () => {
+    if (!user) return;
     if (!confirm('Are you sure you want to delete all fact-checking history?')) return;
     try {
-      const q = query(collection(db, 'factchecks'));
+      const q = query(collection(db, 'users', user.id, 'factchecks'));
       const querySnapshot = await getDocs(q);
       const deletePromises = querySnapshot.docs.map(document => 
-        deleteDoc(doc(db, 'factchecks', document.id))
+        deleteDoc(doc(db, 'users', user.id, 'factchecks', document.id))
       );
       await Promise.all(deletePromises);
       setRecentChecks([]);
@@ -144,8 +156,13 @@ export default function FactCheckPage() {
 
     // 4. Save new fact check to Firestore database
     try {
-      const docRef = await addDoc(collection(db, 'factchecks'), resolvedResult);
-      const finalResult: FactCheckResult = { id: docRef.id, ...resolvedResult };
+      let finalResult: FactCheckResult;
+      if (user) {
+        const docRef = await addDoc(collection(db, 'users', user.id, 'factchecks'), resolvedResult);
+        finalResult = { id: docRef.id, ...resolvedResult };
+      } else {
+        finalResult = { id: 'FC-' + Math.floor(100 + Math.random() * 900), ...resolvedResult };
+      }
       setResults([finalResult]);
       
       // Prepend to recent list
@@ -154,6 +171,7 @@ export default function FactCheckPage() {
       console.error('Error storing fact check in Firestore: ', err);
       const finalResult: FactCheckResult = { id: 'FC-' + Math.floor(100 + Math.random() * 900), ...resolvedResult };
       setResults([finalResult]);
+      setRecentChecks(prev => [finalResult, ...prev.filter(item => item.claim !== claimQuery)].slice(0, 15));
     }
 
     setIsLoading(false);

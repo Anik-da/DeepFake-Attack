@@ -172,6 +172,145 @@ function VerifyContent() {
     });
   };
 
+  const downloadCertificate = () => {
+    if (!result) return;
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      alert('Please allow popups to download the certificate.');
+      return;
+    }
+    
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>TruthGuard AI Verification Certificate - ${result.certificateId}</title>
+          <style>
+            body {
+              font-family: 'Courier New', Courier, monospace;
+              padding: 40px;
+              background-color: #0d0f12;
+              color: #e2e8f0;
+              text-align: center;
+            }
+            .certificate-box {
+              border: 4px double #3b82f6;
+              padding: 30px;
+              max-width: 650px;
+              margin: 0 auto;
+              background-color: #111827;
+              border-radius: 12px;
+            }
+            .header {
+              font-size: 24px;
+              font-weight: bold;
+              margin-bottom: 20px;
+              color: #3b82f6;
+              text-transform: uppercase;
+              letter-spacing: 2px;
+            }
+            .meta {
+              text-align: left;
+              margin: 20px 0;
+              font-size: 14px;
+              line-height: 1.6;
+            }
+            .meta-item {
+              margin-bottom: 8px;
+            }
+            .label {
+              font-weight: bold;
+              color: #9ca3af;
+            }
+            .value {
+              color: #f3f4f6;
+            }
+            .badge {
+              display: inline-block;
+              padding: 10px 20px;
+              font-size: 18px;
+              font-weight: bold;
+              border-radius: 8px;
+              margin: 20px 0;
+              text-transform: uppercase;
+            }
+            .authentic {
+              background-color: rgba(16, 185, 129, 0.2);
+              color: #10b981;
+              border: 1px solid #10b981;
+            }
+            .manipulated {
+              background-color: rgba(239, 68, 68, 0.2);
+              color: #ef4444;
+              border: 1px solid #ef4444;
+            }
+            .footer-sig {
+              margin-top: 40px;
+              border-top: 1px dashed #374151;
+              padding-top: 20px;
+              font-size: 12px;
+              color: #6b7280;
+            }
+            @media print {
+              body {
+                background-color: #ffffff;
+                color: #000000;
+              }
+              .certificate-box {
+                border: 4px double #000000;
+                background-color: #ffffff;
+                box-shadow: none;
+              }
+              .header {
+                color: #000000;
+              }
+              .badge {
+                border: 2px solid #000000;
+                color: #000000;
+                background: none;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="certificate-box">
+            <div class="header">TruthGuard AI Forensic Laboratory</div>
+            <p style="font-size: 14px; color: #9ca3af;">CRYPTOGRAPHIC VERIFICATION CERTIFICATE</p>
+            
+            <div class="badge ${result.authenticityScore > 60 ? 'authentic' : 'manipulated'}">
+              ${result.authenticityScore > 60 ? 'Verified Original' : 'AI Manipulated / Deepfake'}
+            </div>
+
+            <div class="meta">
+              <div class="meta-item"><span class="label">Certificate ID:</span> <span class="value">${result.certificateId}</span></div>
+              <div class="meta-item"><span class="label">Analysis Timestamp:</span> <span class="value">${result.timestamp || new Date().toISOString()}</span></div>
+              <div class="meta-item"><span class="label">Target Filename:</span> <span class="value">${result.fileName}</span></div>
+              <div class="meta-item"><span class="label">Target Filesize:</span> <span class="value">${result.fileSize}</span></div>
+              <div class="meta-item"><span class="label">Authenticity Score:</span> <span class="value">${result.authenticityScore}%</span></div>
+              <div class="meta-item"><span class="label">Manipulation Risk:</span> <span class="value">${result.manipulationProbability}%</span></div>
+              <div class="meta-item"><span class="label">Risk Category:</span> <span class="value" style="text-transform: uppercase;">${result.riskLevel}</span></div>
+            </div>
+
+            <p style="text-align: left; font-size: 12px; color: #9ca3af; line-height: 1.5; margin-top: 20px;">
+              <strong>Forensic Explanation:</strong> ${result.explanation}
+            </p>
+
+            <div class="footer-sig">
+              <p>SECURE CRYPTOGRAPHIC DIGITAL SIGNATURE</p>
+              <p style="font-family: monospace; font-size: 10px;">tg-signature-hash-${result.certificateId.toLowerCase()}-verified</p>
+            </div>
+          </div>
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 500);
+            }
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
   const getRiskColor = (level: string) => {
     switch (level) {
       case 'low': return 'text-success bg-success/10 border-success/25';
@@ -666,7 +805,7 @@ function VerifyContent() {
               {/* Actions */}
               <div className="flex space-x-3">
                 <button
-                  onClick={() => alert('Certificate downloaded as PDF (mock)')}
+                  onClick={downloadCertificate}
                   className="flex-1 py-2.5 text-center text-xs font-bold text-white bg-primary hover:bg-primary-dark rounded-xl shadow-sm flex items-center justify-center space-x-1.5"
                 >
                   <Download className="w-4 h-4" />

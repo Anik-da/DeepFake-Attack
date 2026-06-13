@@ -113,11 +113,20 @@ async def verify_media(
             fake_score = 0.5
             real_score = 0.5
             for p in predictions:
-                if p['label'].lower() == 'fake':
-                    fake_score = p['score']
-                elif p['label'].lower() == 'real':
-                    real_score = p['score']
+                label = p.get('label') if isinstance(p, dict) else getattr(p, 'label', '')
+                score = p.get('score') if isinstance(p, dict) else getattr(p, 'score', 0.0)
+                
+                label_lower = str(label).lower()
+                if label_lower in ['fake', 'deepfake']:
+                    fake_score = score
+                elif label_lower in ['real', 'realism']:
+                    real_score = score
             
+            if real_score == 0.5 and fake_score != 0.5:
+                real_score = 1.0 - fake_score
+            elif fake_score == 0.5 and real_score != 0.5:
+                fake_score = 1.0 - real_score
+
             authenticity_score = int(real_score * 100)
             manipulation_probability = int(fake_score * 100)
             
